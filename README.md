@@ -1,5 +1,6 @@
 # BharatMesh Pay — Offline UPI Payments via BLE Mesh Network
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-46E3B7.svg?logo=render&logoColor=white)](https://bharatmeshpay.onrender.com/)
 [![Java](https://img.shields.io/badge/Java-21%20LTS-orange.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Security](https://img.shields.io/badge/Security-RSA--2048%20%2B%20AES--256--GCM-blue.svg)]()
@@ -8,6 +9,7 @@
 
 > **Author**: Vaishnavi Singh  
 > **Project**: BharatMesh Pay (Offline-First UPI Mesh Network Engine)  
+> **Live Demo**: [https://bharatmeshpay.onrender.com](https://bharatmeshpay.onrender.com)  
 > **Status**: Production-Ready Prototype & Interactive Simulator  
 
 ---
