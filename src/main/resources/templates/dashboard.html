@@ -1,0 +1,2371 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BharatMesh Pay — Offline UPI Mesh Network</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #070a13;
+            --bg-surface: #0e1526;
+            --bg-surface-elevated: #151f38;
+            --bg-surface-subtle: #1a2644;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-medium: rgba(255, 255, 255, 0.14);
+            --border-highlight: rgba(99, 102, 241, 0.4);
+
+            --accent-primary: #6366f1;
+            --accent-primary-hover: #4f46e5;
+            --accent-primary-glow: rgba(99, 102, 241, 0.35);
+
+            --accent-emerald: #10b981;
+            --accent-emerald-subtle: rgba(16, 185, 129, 0.12);
+            --accent-emerald-glow: rgba(16, 185, 129, 0.3);
+
+            --accent-amber: #f59e0b;
+            --accent-amber-subtle: rgba(245, 158, 11, 0.12);
+
+            --accent-rose: #f43f5e;
+            --accent-rose-subtle: rgba(244, 63, 94, 0.12);
+
+            --accent-cyan: #06b6d4;
+            --accent-cyan-subtle: rgba(6, 182, 212, 0.12);
+
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', Consolas, monospace;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-full: 9999px;
+            --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+            background-image: 
+                radial-gradient(circle at 15% 10%, rgba(99, 102, 241, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 20%, rgba(16, 185, 129, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 50% 90%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        /* Top Bar */
+        .navbar {
+            background: rgba(14, 21, 38, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            padding: 14px 28px;
+        }
+
+        .navbar-content {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px var(--accent-primary-glow);
+            position: relative;
+        }
+
+        .brand-logo svg {
+            width: 22px;
+            height: 22px;
+            color: white;
+        }
+
+        .brand-text h1 {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-text p {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-status-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: var(--radius-full);
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+
+        .pill-badge.active {
+            color: var(--accent-emerald);
+            background: var(--accent-emerald-subtle);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .pill-badge.crypto {
+            color: var(--accent-cyan);
+            background: var(--accent-cyan-subtle);
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-emerald);
+            box-shadow: 0 0 10px var(--accent-emerald);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.85); }
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px var(--accent-primary-glow);
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px var(--accent-primary-glow);
+            filter: brightness(1.1);
+        }
+
+        .btn-tour {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+        }
+        .btn-tour:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn-secondary {
+            background: var(--bg-surface-elevated);
+            color: var(--text-primary);
+            border-color: var(--border-subtle);
+        }
+        .btn-secondary:hover {
+            background: var(--bg-surface-subtle);
+            border-color: var(--border-medium);
+            color: #ffffff;
+        }
+
+        .btn-danger {
+            background: var(--accent-rose-subtle);
+            color: var(--accent-rose);
+            border-color: rgba(244, 63, 94, 0.3);
+        }
+        .btn-danger:hover {
+            background: var(--accent-rose);
+            color: #ffffff;
+        }
+
+        .btn-icon {
+            padding: 8px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+        .btn-icon:hover {
+            color: var(--text-primary);
+            background: var(--bg-surface-subtle);
+        }
+
+        /* Main Container */
+        .main-layout {
+            max-width: 1440px;
+            margin: 24px auto;
+            padding: 0 24px 60px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* KPI Banner */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+        }
+
+        .kpi-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .kpi-card:hover {
+            border-color: var(--border-medium);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .kpi-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--card-accent, var(--accent-primary)), transparent);
+            opacity: 0.6;
+        }
+
+        .kpi-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .kpi-sub {
+            font-size: 11px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Split Workspace: Phone Terminal & Mesh Graph */
+        .stage-grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* Mobile Phone Simulator Card */
+        .phone-simulator-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+            position: sticky;
+            top: 90px;
+        }
+
+        .phone-bezel {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .phone-status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .offline-alert-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: var(--radius-sm);
+            color: var(--accent-amber);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .form-section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .form-control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .select-custom, .input-custom {
+            width: 100%;
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+            outline: none;
+        }
+        .select-custom:focus, .input-custom:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--accent-primary-glow);
+        }
+
+        .amount-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 14px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-emerald);
+        }
+
+        .amount-input {
+            padding-left: 32px;
+            font-size: 20px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            letter-spacing: -0.02em;
+        }
+
+        .chip-presets {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .preset-chip {
+            background: var(--bg-surface-subtle);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .preset-chip:hover {
+            background: var(--bg-surface-elevated);
+            color: var(--text-primary);
+            border-color: var(--border-medium);
+        }
+
+        .pin-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .pin-input {
+            letter-spacing: 0.3em;
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            width: 120px;
+        }
+
+        .pin-note {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        .crypto-preview-box {
+            background: #060910;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .crypto-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .crypto-row span:last-child {
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        /* Right Panel: Mesh Topology & Simulation Studio */
+        .network-studio-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .studio-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .studio-title-group h2 {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .studio-title-group p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Interactive Canvas Container */
+        .canvas-container {
+            width: 100%;
+            height: 380px;
+            background: #080d1a;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
+        }
+
+        #meshCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .canvas-overlay-legend {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: rgba(14, 21, 38, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* Pipeline Action Stepper Controls */
+        .pipeline-stepper-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .step-action-card {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: var(--transition);
+            position: relative;
+        }
+        .step-action-card:hover {
+            border-color: var(--border-medium);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .step-badge {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .step-number-circle {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--bg-surface-subtle);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .step-action-card h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .step-action-card p {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+
+        .step-btn {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Device Cards Micro-List */
+        .devices-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .device-pill-card {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: var(--transition);
+        }
+        .device-pill-card.bridge {
+            border-color: rgba(16, 185, 129, 0.3);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, var(--bg-surface-elevated) 100%);
+        }
+
+        .device-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .device-packets-badge {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: var(--bg-surface-subtle);
+            color: var(--text-secondary);
+        }
+        .device-packets-badge.has-packets {
+            background: var(--accent-amber-subtle);
+            color: var(--accent-amber);
+            font-weight: 700;
+        }
+
+        /* Workspace Tabs Section */
+        .workspace-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .tabs-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            background: rgba(14, 21, 38, 0.5);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .tabs-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 16px 16px;
+            color: var(--text-muted);
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+        .tab-btn.active {
+            color: var(--accent-primary);
+        }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-primary);
+            box-shadow: 0 0 12px var(--accent-primary);
+        }
+
+        .tab-content {
+            padding: 24px;
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Table Design */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 13px;
+        }
+
+        .custom-table th {
+            background: var(--bg-surface-elevated);
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .custom-table th:first-child { border-top-left-radius: var(--radius-sm); }
+        .custom-table th:last-child { border-top-right-radius: var(--radius-sm); }
+
+        .custom-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            font-weight: 500;
+            vertical-align: middle;
+        }
+
+        .custom-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-primary);
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .badge-status.SETTLED {
+            background: var(--accent-emerald-subtle);
+            color: var(--accent-emerald);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .badge-status.DUPLICATE_DROPPED {
+            background: var(--accent-amber-subtle);
+            color: var(--accent-amber);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .badge-status.REJECTED {
+            background: var(--accent-rose-subtle);
+            color: var(--accent-rose);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+        }
+
+        .hash-code {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            background: var(--bg-surface-elevated);
+            padding: 3px 6px;
+            border-radius: 4px;
+            color: var(--accent-cyan);
+        }
+
+        /* Accounts Grid */
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .account-card {
+            background: linear-gradient(135deg, var(--bg-surface-elevated) 0%, #111a30 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .account-card:hover {
+            border-color: var(--border-medium);
+            transform: translateY(-2px);
+        }
+
+        .account-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .account-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 16px;
+            color: #ffffff;
+        }
+
+        .account-details h4 {
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .account-details p {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        .account-balance-box {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        .account-balance-box span:first-child {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .account-balance-box .balance-val {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--accent-emerald);
+            font-family: var(--font-mono);
+        }
+
+        /* Architecture Security Showcase */
+        .arch-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .arch-card {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .arch-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            background: var(--accent-primary-glow);
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .arch-card h3 {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .arch-card p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Console Output Log */
+        .terminal-container {
+            background: #03060d;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-header {
+            background: #080d1a;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+        }
+
+        .terminal-body {
+            height: 260px;
+            padding: 14px 16px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .log-entry {
+            display: flex;
+            gap: 10px;
+            word-break: break-all;
+        }
+
+        .log-time {
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .log-tag {
+            font-weight: 700;
+            padding: 0 4px;
+            border-radius: 3px;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+        .log-tag.INJECT { background: var(--accent-primary-glow); color: #818cf8; }
+        .log-tag.GOSSIP { background: var(--accent-cyan-subtle); color: var(--accent-cyan); }
+        .log-tag.UPLOAD { background: var(--accent-amber-subtle); color: var(--accent-amber); }
+        .log-tag.SETTLED { background: var(--accent-emerald-subtle); color: var(--accent-emerald); }
+        .log-tag.DUP { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+        .log-msg {
+            color: #e2e8f0;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 580px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+            animation: modal-pop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modal-pop {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .receipt-card {
+            background: #060910;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed var(--border-subtle);
+            padding-bottom: 8px;
+        }
+        .receipt-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        /* Toast Container */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 110;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: rgba(14, 21, 38, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            pointer-events: auto;
+            animation: toast-slide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            max-width: 380px;
+        }
+
+        .toast.success { border-color: rgba(16, 185, 129, 0.4); }
+        .toast.info { border-color: rgba(99, 102, 241, 0.4); }
+        .toast.warning { border-color: rgba(245, 158, 11, 0.4); }
+
+        @keyframes toast-slide {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Canvas Particle Confetti */
+        #confettiCanvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 200;
+        }
+
+        @media (max-width: 1080px) {
+            .stage-grid {
+                grid-template-columns: 1fr;
+            }
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .pipeline-stepper-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .arch-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="confettiCanvas"></canvas>
+
+<!-- Top Navigation -->
+<nav class="navbar">
+    <div class="navbar-content">
+        <div class="brand-container">
+            <div class="brand-logo">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </div>
+            <div class="brand-text">
+                <h1>BharatMesh Pay</h1>
+                <p>
+                    <span>UPI 2.0 Offline Mesh Network</span>
+                    <span>•</span>
+                    <span style="color: var(--accent-emerald);">Air-Gapped Protocol v1.4</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="nav-status-group">
+            <div class="pill-badge active">
+                <span class="status-dot"></span>
+                <span>Simulator Online</span>
+            </div>
+            <div class="pill-badge crypto">
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0110 0v4"></path>
+                </svg>
+                <span>RSA-2048 / AES-GCM</span>
+            </div>
+        </div>
+
+        <div class="nav-actions">
+            <button class="btn btn-tour" id="btnAutoTour" onclick="runAutomatedTour()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <span>Interactive Auto-Tour</span>
+            </button>
+            <button class="btn btn-secondary" onclick="openKeyModal()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                </svg>
+                <span>Server RSA Key</span>
+            </button>
+            <a href="/h2-console" target="_blank" class="btn btn-secondary">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                </svg>
+                <span>H2 DB Console</span>
+            </a>
+            <button class="btn-icon" id="soundToggle" onclick="toggleSound()" title="Toggle Sound Effects">
+                <svg id="soundIcon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+            </button>
+            <button class="btn btn-danger" onclick="resetMesh()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                <span>Reset Mesh</span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<div class="main-layout">
+
+    <!-- KPI Summary Row -->
+    <div class="kpi-grid">
+        <div class="kpi-card" style="--card-accent: var(--accent-emerald);">
+            <div class="kpi-header">
+                <span>Total Settled Volume</span>
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="kpi-value" id="kpiSettledVolume">₹0.00</div>
+            <div class="kpi-sub">
+                <span style="color: var(--accent-emerald);">●</span>
+                <span id="kpiSettledCount">0 transactions completed</span>
+            </div>
+        </div>
+
+        <div class="kpi-card" style="--card-accent: var(--accent-amber);">
+            <div class="kpi-header">
+                <span>Packets In Flight</span>
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                </svg>
+            </div>
+            <div class="kpi-value" id="kpiPacketsInFlight">0</div>
+            <div class="kpi-sub">
+                <span>Across 5 virtual mesh nodes</span>
+            </div>
+        </div>
+
+        <div class="kpi-card" style="--card-accent: var(--accent-cyan);">
+            <div class="kpi-header">
+                <span>Idempotency Cache</span>
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+            </div>
+            <div class="kpi-value" id="kpiCacheEntries">0</div>
+            <div class="kpi-sub">
+                <span style="color: var(--accent-cyan);">100% replay immunity</span>
+            </div>
+        </div>
+
+        <div class="kpi-card" style="--card-accent: var(--accent-primary);">
+            <div class="kpi-header">
+                <span>Duplicate Drop Rate</span>
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                </svg>
+            </div>
+            <div class="kpi-value" id="kpiDupDrops">0</div>
+            <div class="kpi-sub">
+                <span>Storm collisions neutralized</span>
+            </div>
+        </div>
+
+        <div class="kpi-card" style="--card-accent: var(--accent-emerald);">
+            <div class="kpi-header">
+                <span>4G Gateway Status</span>
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path>
+                </svg>
+            </div>
+            <div class="kpi-value" style="color: var(--accent-emerald);">phone-bridge</div>
+            <div class="kpi-sub">
+                <span>Simulating Ground Floor Exit</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stage Grid: Left Mobile Phone Terminal, Right Mesh Topology & Simulation Controls -->
+    <div class="stage-grid">
+
+        <!-- Mobile Phone Terminal (Alice's Phone) -->
+        <div class="phone-simulator-card">
+            <div class="phone-bezel">
+                <div class="phone-status-bar">
+                    <span>18:20 • Airtel 0G</span>
+                    <span style="display:flex; align-items:center; gap:4px;">
+                        <span>📶 BLE</span>
+                        <span>⚡ 82%</span>
+                    </span>
+                </div>
+
+                <div class="offline-alert-badge">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                    </svg>
+                    <span>Basement Mode: Air-gapped (Zero Internet)</span>
+                </div>
+
+                <!-- Payment Form -->
+                <div class="form-control-group">
+                    <label class="input-label">
+                        <span>Payer Account (Sender)</span>
+                        <span id="senderBalancePreview" style="color: var(--accent-emerald);">₹5,000.00</span>
+                    </label>
+                    <select id="senderVpa" class="select-custom" onchange="updateSenderBalancePreview()">
+                        <option value="alice@demo" selected>Alice (alice@demo) • ₹5,000.00</option>
+                        <option value="bob@demo">Bob (bob@demo) • ₹1,000.00</option>
+                        <option value="carol@demo">Carol (carol@demo) • ₹2,500.00</option>
+                    </select>
+                </div>
+
+                <div class="form-control-group">
+                    <label class="input-label">
+                        <span>Recipient VPA</span>
+                    </label>
+                    <select id="receiverVpa" class="select-custom">
+                        <option value="bob@demo" selected>Bob (bob@demo)</option>
+                        <option value="carol@demo">Carol (carol@demo)</option>
+                        <option value="alice@demo">Alice (alice@demo)</option>
+                        <option value="dave@demo">Dave (dave@demo)</option>
+                    </select>
+                </div>
+
+                <div class="form-control-group">
+                    <label class="input-label">
+                        <span>Amount (INR)</span>
+                    </label>
+                    <div class="amount-input-wrapper">
+                        <span class="currency-symbol">₹</span>
+                        <input type="number" id="amount" class="input-custom amount-input" value="500" min="1" step="10">
+                    </div>
+                    <div class="chip-presets">
+                        <span class="preset-chip" onclick="setAmount(100)">₹100</span>
+                        <span class="preset-chip" onclick="setAmount(250)">₹250</span>
+                        <span class="preset-chip" onclick="setAmount(500)">₹500</span>
+                        <span class="preset-chip" onclick="setAmount(1000)">₹1,000</span>
+                        <span class="preset-chip" onclick="setAmount(2000)">₹2,000</span>
+                    </div>
+                </div>
+
+                <div class="form-control-group">
+                    <label class="input-label">
+                        <span>Offline UPI PIN</span>
+                        <span style="font-size:11px; color:var(--text-muted);">Default: 1234</span>
+                    </label>
+                    <div class="pin-wrapper">
+                        <input type="password" id="pin" class="input-custom pin-input" value="1234" maxlength="4" placeholder="••••">
+                        <div class="pin-note">
+                            Hashed with SHA-256 before client-side hybrid encryption
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="btnInject" style="padding: 12px; font-size: 14px; margin-top: 4px;" onclick="sendPacket()">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <span>Sign & Inject into BLE Mesh</span>
+                </button>
+
+                <!-- Cryptographic Envelope Preview -->
+                <div class="crypto-preview-box">
+                    <div class="crypto-row">
+                        <span>ENCRYPTION</span>
+                        <span>RSA-OAEP + AES-256-GCM</span>
+                    </div>
+                    <div class="crypto-row">
+                        <span>NONCE FRESHNESS</span>
+                        <span id="cryptoNonce">UUIDv4 Active</span>
+                    </div>
+                    <div class="crypto-row">
+                        <span>INITIAL TTL</span>
+                        <span>5 Hops</span>
+                    </div>
+                    <div class="crypto-row">
+                        <span>INJECTION NODE</span>
+                        <span style="color:var(--text-primary);">phone-alice (Offline)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Topology Studio & Action Stepper -->
+        <div class="network-studio-card">
+            <div class="studio-header">
+                <div class="studio-title-group">
+                    <h2>
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2" style="color: var(--accent-primary);">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                        <span>Live Mesh Topology Map</span>
+                    </h2>
+                    <p>Real-time Bluetooth Low Energy gossip propagation between basement devices and outside gateway.</p>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-secondary" onclick="triggerTopologyAnimation()">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        <span>Redraw Graph</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- HTML5 Interactive Canvas -->
+            <div class="canvas-container">
+                <canvas id="meshCanvas"></canvas>
+                <div class="canvas-overlay-legend">
+                    <div class="legend-item">
+                        <span class="legend-indicator" style="background:#6366f1;"></span>
+                        <span>Sender Node (Alice)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-indicator" style="background:#64748b;"></span>
+                        <span>Relay Nodes (Strangers)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-indicator" style="background:#10b981; box-shadow:0 0 6px #10b981;"></span>
+                        <span>Bridge Node (4G Uplink)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-indicator" style="background:#f59e0b; box-shadow:0 0 6px #f59e0b;"></span>
+                        <span>Encrypted Packet Moving</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pipeline Action Stepper -->
+            <div class="pipeline-stepper-grid">
+                <!-- Step 1 -->
+                <div class="step-action-card" id="stepCard1">
+                    <div class="step-badge">
+                        <span class="step-number-circle">1</span>
+                        <span>Origin</span>
+                    </div>
+                    <h3>Sign & Inject</h3>
+                    <p>Alice's phone signs and encrypts payment payload; hands to mesh.</p>
+                    <button class="btn btn-secondary step-btn" onclick="sendPacket()">Inject Packet</button>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-action-card" id="stepCard2">
+                    <div class="step-badge">
+                        <span class="step-number-circle">2</span>
+                        <span>Mesh Gossip</span>
+                    </div>
+                    <h3>Hop Peer-to-Peer</h3>
+                    <p>Packets hop device-to-device via simulated BLE broadcast (TTL-1).</p>
+                    <button class="btn btn-primary step-btn" id="btnGossip" onclick="gossip()">🔄 Run Gossip Hop</button>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-action-card" id="stepCard3">
+                    <div class="step-badge">
+                        <span class="step-number-circle">3</span>
+                        <span>Bridge Uplink</span>
+                    </div>
+                    <h3>4G Gateway Upload</h3>
+                    <p>Bridge node walks outside, catches 4G, and POSTs payload to bank.</p>
+                    <button class="btn btn-primary step-btn" id="btnFlush" style="background:linear-gradient(135deg, #10b981 0%, #059669 100%);" onclick="flushBridges()">📡 Upload & Settle</button>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="step-action-card" id="stepCard4">
+                    <div class="step-badge">
+                        <span class="step-number-circle">4</span>
+                        <span>Defense Check</span>
+                    </div>
+                    <h3>Storm De-dup Test</h3>
+                    <p>Trigger concurrent parallel uploads of same packet to verify de-dup.</p>
+                    <button class="btn btn-secondary step-btn" onclick="testIdempotencyStorm()">⚡ Fire Storm Test</button>
+                </div>
+            </div>
+
+            <!-- Micro Device Status List -->
+            <div>
+                <div class="form-section-title" style="margin-bottom: 8px;">Active Mesh Hardware Relays (Simulated)</div>
+                <div class="devices-row" id="devicesRow"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabbed Bottom Workspace -->
+    <div class="workspace-card">
+        <div class="tabs-header">
+            <div class="tabs-nav">
+                <button class="tab-btn active" onclick="switchTab('ledger', this)">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span>Settlement Ledger & Transactions</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('accounts', this)">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                    </svg>
+                    <span>Bank Accounts & Reserves</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('security', this)">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <span>Cryptographic Security Model</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('telemetry', this)">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <polyline points="4 17 10 11 14 15 20 9"></polyline>
+                        <polyline points="14 9 20 9 20 15"></polyline>
+                    </svg>
+                    <span>Live Protocol Telemetry Log</span>
+                </button>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">
+                Polling Backend: <span style="color:var(--accent-emerald);">3s Loop Active</span>
+            </div>
+        </div>
+
+        <!-- Tab 1: Ledger -->
+        <div id="tab-ledger" class="tab-content active">
+            <div class="table-responsive">
+                <table class="custom-table" id="txTable">
+                    <thead>
+                        <tr>
+                            <th>Tx ID</th>
+                            <th>Sender</th>
+                            <th>Recipient</th>
+                            <th>Amount</th>
+                            <th>Settlement Status</th>
+                            <th>Bridge Node</th>
+                            <th>Hops Taken</th>
+                            <th>Timestamp</th>
+                            <th>Cryptographic Proof</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Injected via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 2: Accounts -->
+        <div id="tab-accounts" class="tab-content">
+            <div class="accounts-grid" id="accountsGrid">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- Tab 3: Security & Cryptography -->
+        <div id="tab-security" class="tab-content">
+            <div class="arch-grid">
+                <div class="arch-card">
+                    <div class="arch-icon">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0110 0v4"></path>
+                        </svg>
+                    </div>
+                    <h3>1. Zero-Trust Mesh Relay</h3>
+                    <p>Intermediary phones pass encrypted packets without knowing sender, receiver, amount, or PIN. Uses hybrid RSA-2048 OAEP to wrap an ephemeral AES-256-GCM symmetric session key. Tamper attempts immediately break the GCM auth tag.</p>
+                </div>
+
+                <div class="arch-card">
+                    <div class="arch-icon" style="background:var(--accent-cyan-subtle); color:var(--accent-cyan);">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <h3>2. Idempotency & Storm Defense</h3>
+                    <p>In a mesh gossip network, dozens of phones may hit cellular range at once and upload identical copies. The backend hashes ciphertext with SHA-256 and executes an atomic compare-and-set claim. Exactly one settles; all duplicates drop harmlessly.</p>
+                </div>
+
+                <div class="arch-card">
+                    <div class="arch-icon" style="background:var(--accent-emerald-subtle); color:var(--accent-emerald);">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <h3>3. Anti-Replay & Freshness Window</h3>
+                    <p>Every transaction carries a signed timestamp and a cryptographically secure random UUID nonce. The server enforces a maximum age window (24 hours). Expired or replayed packets are rejected before ever touching the ledger.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Telemetry Terminal -->
+        <div id="tab-telemetry" class="tab-content">
+            <div class="terminal-container">
+                <div class="terminal-header">
+                    <span>Audit Trail • Protocol Stream (/api/mesh & /api/bridge)</span>
+                    <button class="btn btn-secondary" style="padding:4px 10px; font-size:11px;" onclick="clearLogs()">Clear Terminal</button>
+                </div>
+                <div class="terminal-body" id="terminalBody"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Server RSA Key Inspector -->
+<div class="modal-overlay" id="keyModal" onclick="closeModalOnBackdrop(event, 'keyModal')">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>🔑 Server RSA Public Key</h3>
+            <button class="btn-icon" onclick="closeKeyModal()">✕</button>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted);">
+            Clients in the offline mesh pre-cache this RSA-2048 public key while online. When paying offline, the client encrypts the AES-256 session key using RSA-OAEP with SHA-256.
+        </p>
+        <div class="receipt-card">
+            <div class="receipt-row">
+                <span>ALGORITHM</span>
+                <span id="keyAlgorithm" style="color:var(--accent-cyan);">RSA-2048 / OAEP-SHA256</span>
+            </div>
+            <div class="receipt-row">
+                <span>SCHEME</span>
+                <span style="color:var(--text-primary);">Hybrid (RSA wraps AES-256-GCM)</span>
+            </div>
+            <div>
+                <span style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:6px;">X.509 PUBLIC KEY (BASE64)</span>
+                <textarea id="keyBase64" readonly style="width:100%; height:110px; background:#040711; border:1px solid var(--border-subtle); border-radius:4px; color:#a5b4fc; font-family:var(--font-mono); font-size:11px; padding:8px; resize:none;"></textarea>
+            </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px;">
+            <button class="btn btn-secondary" onclick="copyPublicKey()">Copy Public Key</button>
+            <button class="btn btn-primary" onclick="closeKeyModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Transaction Receipt Modal -->
+<div class="modal-overlay" id="receiptModal" onclick="closeModalOnBackdrop(event, 'receiptModal')">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>📜 Transaction Settlement Receipt</h3>
+            <button class="btn-icon" onclick="closeReceiptModal()">✕</button>
+        </div>
+        <div class="receipt-card" id="receiptContent">
+            <!-- Injected via JS -->
+        </div>
+        <div style="display:flex; justify-content:flex-end;">
+            <button class="btn btn-primary" onclick="closeReceiptModal()">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+    // Audio synthesis for subtle clicks and feedback
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    function getAudioContext() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        return audioCtx;
+    }
+
+    function playTone(freq, type, duration, gainVal = 0.05) {
+        if (!soundEnabled) return;
+        try {
+            const ctx = getAudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+            gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + duration);
+        } catch (e) {
+            // Audio policy fallback
+        }
+    }
+
+    function playSuccessSound() {
+        if (!soundEnabled) return;
+        playTone(523.25, 'sine', 0.15, 0.08); // C5
+        setTimeout(() => playTone(659.25, 'sine', 0.15, 0.08), 80); // E5
+        setTimeout(() => playTone(783.99, 'sine', 0.25, 0.08), 160); // G5
+    }
+
+    function toggleSound() {
+        soundEnabled = !soundEnabled;
+        const icon = document.getElementById('soundIcon');
+        if (soundEnabled) {
+            icon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>';
+            showToast('Audio FX Enabled', 'info');
+            playTone(600, 'sine', 0.1);
+        } else {
+            icon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>';
+            showToast('Audio FX Muted', 'info');
+        }
+    }
+
+    // Confetti effect
+    function fireConfetti() {
+        const canvas = document.getElementById('confettiCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const pieces = [];
+        const colors = ['#6366f1', '#10b981', '#06b6d4', '#f59e0b', '#ec4899'];
+        for (let i = 0; i < 70; i++) {
+            pieces.push({
+                x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+                y: canvas.height * 0.4,
+                vx: (Math.random() - 0.5) * 12,
+                vy: (Math.random() - 1.2) * 10,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                size: Math.random() * 8 + 4,
+                rot: Math.random() * 360,
+                vrot: (Math.random() - 0.5) * 8
+            });
+        }
+
+        let frames = 0;
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let active = false;
+            pieces.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.3; // gravity
+                p.rot += p.vrot;
+                if (p.y < canvas.height) {
+                    active = true;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rot * Math.PI / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+                }
+            });
+            frames++;
+            if (active && frames < 140) {
+                requestAnimationFrame(render);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+        render();
+    }
+
+    // Toast notifications
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        let iconSvg = '';
+        if (type === 'success') {
+            iconSvg = '<svg width="16" height="16" fill="none" stroke="#10b981" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        } else if (type === 'warning') {
+            iconSvg = '<svg width="16" height="16" fill="none" stroke="#f59e0b" viewBox="0 0 24 24" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+        } else {
+            iconSvg = '<svg width="16" height="16" fill="none" stroke="#6366f1" viewBox="0 0 24 24" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+        }
+        
+        toast.innerHTML = `${iconSvg}<span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(10px)';
+            toast.style.transition = 'all 0.25s ease';
+            setTimeout(() => toast.remove(), 250);
+        }, 4000);
+    }
+
+    // Terminal Logging
+    function logTerminal(tag, message) {
+        const body = document.getElementById('terminalBody');
+        const row = document.createElement('div');
+        row.className = 'log-entry';
+        const now = new Date().toLocaleTimeString();
+        row.innerHTML = `
+            <span class="log-time">[${now}]</span>
+            <span class="log-tag ${tag}">${tag}</span>
+            <span class="log-msg">${escapeHtml(message)}</span>
+        `;
+        body.appendChild(row);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function clearLogs() {
+        document.getElementById('terminalBody').innerHTML = '';
+        showToast('Terminal logs cleared', 'info');
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Amount presets
+    function setAmount(val) {
+        document.getElementById('amount').value = val;
+        playTone(440, 'triangle', 0.05);
+    }
+
+    // Tabs
+    function switchTab(tabId, el) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById(`tab-${tabId}`).classList.add('active');
+        playTone(350, 'sine', 0.05);
+    }
+
+    // Modals
+    async function openKeyModal() {
+        playTone(400, 'sine', 0.08);
+        try {
+            const data = await fetch('/api/server-key').then(r => r.json());
+            document.getElementById('keyAlgorithm').textContent = data.algorithm;
+            document.getElementById('keyBase64').value = data.publicKey;
+            document.getElementById('keyModal').classList.add('open');
+        } catch (e) {
+            showToast('Failed to load server public key', 'warning');
+        }
+    }
+
+    function closeKeyModal() {
+        document.getElementById('keyModal').classList.remove('open');
+    }
+
+    function copyPublicKey() {
+        const copyText = document.getElementById('keyBase64');
+        copyText.select();
+        navigator.clipboard.writeText(copyText.value);
+        showToast('RSA Public Key copied to clipboard', 'success');
+        playTone(550, 'sine', 0.08);
+    }
+
+    function openReceiptModal(txId) {
+        const tx = currentTransactions.find(t => t.id === txId);
+        if (!tx) return;
+        playTone(450, 'sine', 0.08);
+        const modal = document.getElementById('receiptModal');
+        const content = document.getElementById('receiptContent');
+        content.innerHTML = `
+            <div class="receipt-row">
+                <span style="color:var(--text-muted)">TRANSACTION ID</span>
+                <span style="color:var(--accent-primary); font-weight:700">#${tx.id}</span>
+            </div>
+            <div class="receipt-row">
+                <span style="color:var(--text-muted)">PAYMENT STATUS</span>
+                <span style="color:var(--accent-emerald); font-weight:700">${tx.status}</span>
+            </div>
+            <div class="receipt-row">
+                <span style="color:var(--text-muted)">SENDER VPA</span>
+                <span>${tx.senderVpa}</span>
+            </div>
+            <div class="receipt-row">
+                <span style="color:var(--text-muted)">RECIPIENT VPA</span>
+                <span>${tx.receiverVpa}</span>
+            </div>
+            <div class="receipt-row">
+                <span style="color:var(--text-muted)">SETTLED AMOUNT</span>
+                <span style="color:var(--accent-emerald); font-size:16px; font-weight:800">₹${parseFloat(tx.amount).toFixed(2)}</span>
+            </div>
+            <div class="receipt-row">
+                <span style="color:var(--text-muted)">GATEWAY BRIDGE NODE</span>
+                <span style="color:var(--accent-cyan)">${tx.bridgeNodeId}</span>
+            </div>
+            <div class="receipt-row">
+                <span style="color:var(--text-muted)">MESH HOPS TRAVERSED</span>
+                <span>${tx.hopCount} hop(s)</span>
+            </div>
+            <div class="receipt-row">
+                <span style="color:var(--text-muted)">OFFLINE SIGNED AT</span>
+                <span>${new Date(tx.signedAt).toLocaleString()}</span>
+            </div>
+            <div class="receipt-row">
+                <span style="color:var(--text-muted)">BANK SETTLED AT</span>
+                <span>${new Date(tx.settledAt).toLocaleString()}</span>
+            </div>
+            <div>
+                <span style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px">SHA-256 IDEMPOTENCY PACKET HASH</span>
+                <div style="background:#03060f; padding:8px; border-radius:4px; word-break:break-all; color:#93c5fd; font-size:11px; border:1px solid var(--border-subtle)">
+                    ${tx.packetHash}
+                </div>
+            </div>
+        `;
+        modal.classList.add('open');
+    }
+
+    function closeReceiptModal() {
+        document.getElementById('receiptModal').classList.remove('open');
+    }
+
+    function closeModalOnBackdrop(e, id) {
+        if (e.target.id === id) {
+            document.getElementById(id).classList.remove('open');
+        }
+    }
+
+    // State Variables
+    let currentDevices = [];
+    let currentAccounts = [];
+    let currentTransactions = [];
+    let duplicateDropsCount = 0;
+
+    // Topology Canvas Node Data
+    const nodePositions = {
+        'phone-alice': { x: 0.18, y: 0.72, label: 'Alice (Sender)', isBridge: false, color: '#6366f1' },
+        'phone-stranger1': { x: 0.38, y: 0.35, label: 'Stranger 1 (Basement)', isBridge: false, color: '#64748b' },
+        'phone-stranger2': { x: 0.55, y: 0.75, label: 'Stranger 2 (Stairs)', isBridge: false, color: '#64748b' },
+        'phone-stranger3': { x: 0.72, y: 0.38, label: 'Stranger 3 (Lobby)', isBridge: false, color: '#64748b' },
+        'phone-bridge': { x: 0.86, y: 0.70, label: 'Bridge (4G Ground Floor)', isBridge: true, color: '#10b981' }
+    };
+
+    const connections = [
+        ['phone-alice', 'phone-stranger1'],
+        ['phone-alice', 'phone-stranger2'],
+        ['phone-stranger1', 'phone-stranger2'],
+        ['phone-stranger1', 'phone-stranger3'],
+        ['phone-stranger2', 'phone-stranger3'],
+        ['phone-stranger2', 'phone-bridge'],
+        ['phone-stranger3', 'phone-bridge']
+    ];
+
+    let packetParticles = [];
+
+    function initTopologyCanvas() {
+        const canvas = document.getElementById('meshCanvas');
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width * window.devicePixelRatio;
+        canvas.height = rect.height * window.devicePixelRatio;
+    }
+
+    window.addEventListener('resize', initTopologyCanvas);
+
+    function triggerTopologyAnimation() {
+        initTopologyCanvas();
+        playTone(450, 'sine', 0.08);
+    }
+
+    function spawnPacketAnimation(fromId, toId) {
+        const p1 = nodePositions[fromId];
+        const p2 = nodePositions[toId];
+        if (!p1 || !p2) return;
+        packetParticles.push({
+            x1: p1.x, y1: p1.y,
+            x2: p2.x, y2: p2.y,
+            progress: 0,
+            speed: 0.025 + Math.random() * 0.02
+        });
+    }
+
+    let pulseAngle = 0;
+    function renderMeshCanvas() {
+        const canvas = document.getElementById('meshCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+
+        pulseAngle += 0.04;
+
+        // Draw connections
+        ctx.lineWidth = 1.5 * window.devicePixelRatio;
+        connections.forEach(([idA, idB]) => {
+            const pA = nodePositions[idA];
+            const pB = nodePositions[idB];
+            if (!pA || !pB) return;
+
+            const xA = pA.x * w;
+            const yA = pA.y * h;
+            const xB = pB.x * w;
+            const yB = pB.y * h;
+
+            const grad = ctx.createLinearGradient(xA, yA, xB, yB);
+            grad.addColorStop(0, 'rgba(99, 102, 241, 0.25)');
+            grad.addColorStop(1, 'rgba(16, 185, 129, 0.25)');
+            ctx.strokeStyle = grad;
+            ctx.beginPath();
+            ctx.moveTo(xA, yA);
+            ctx.lineTo(xB, yB);
+            ctx.stroke();
+        });
+
+        // Update and draw moving packet particles
+        for (let i = packetParticles.length - 1; i >= 0; i--) {
+            const p = packetParticles[i];
+            p.progress += p.speed;
+            const curX = (p.x1 + (p.x2 - p.x1) * p.progress) * w;
+            const curY = (p.y1 + (p.y2 - p.y1) * p.progress) * h;
+
+            ctx.beginPath();
+            ctx.arc(curX, curY, 6 * window.devicePixelRatio, 0, Math.PI * 2);
+            ctx.fillStyle = '#f59e0b';
+            ctx.shadowColor = '#f59e0b';
+            ctx.shadowBlur = 12 * window.devicePixelRatio;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            if (p.progress >= 1) {
+                packetParticles.splice(i, 1);
+            }
+        }
+
+        // Draw Nodes
+        Object.entries(nodePositions).forEach(([id, meta]) => {
+            const nx = meta.x * w;
+            const ny = meta.y * h;
+            const dev = currentDevices.find(d => d.deviceId === id);
+            const packetCount = dev ? dev.packetCount : 0;
+            const radius = 22 * window.devicePixelRatio;
+
+            // Bridge radar pulse animation
+            if (meta.isBridge) {
+                const ringRadius = radius + (Math.sin(pulseAngle) * 8 + 12) * window.devicePixelRatio;
+                ctx.beginPath();
+                ctx.arc(nx, ny, ringRadius, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.35)';
+                ctx.lineWidth = 2 * window.devicePixelRatio;
+                ctx.stroke();
+            }
+
+            // Outer node glow if holding packets
+            if (packetCount > 0) {
+                ctx.beginPath();
+                ctx.arc(nx, ny, radius + 6 * window.devicePixelRatio, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
+                ctx.fill();
+            }
+
+            // Node Body
+            ctx.beginPath();
+            ctx.arc(nx, ny, radius, 0, Math.PI * 2);
+            ctx.fillStyle = meta.isBridge ? '#064e3b' : (packetCount > 0 ? '#1e293b' : '#0f172a');
+            ctx.strokeStyle = meta.isBridge ? '#10b981' : (packetCount > 0 ? '#f59e0b' : '#475569');
+            ctx.lineWidth = 2.5 * window.devicePixelRatio;
+            ctx.fill();
+            ctx.stroke();
+
+            // Node Center Icon / Text
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `bold ${10 * window.devicePixelRatio}px var(--font-sans)`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(meta.isBridge ? '4G' : (id === 'phone-alice' ? 'Alice' : 'BLE'), nx, ny);
+
+            // Packet badge over node
+            if (packetCount > 0) {
+                const bx = nx + radius * 0.7;
+                const by = ny - radius * 0.7;
+                const br = 10 * window.devicePixelRatio;
+                ctx.beginPath();
+                ctx.arc(bx, by, br, 0, Math.PI * 2);
+                ctx.fillStyle = '#f59e0b';
+                ctx.fill();
+                ctx.fillStyle = '#000000';
+                ctx.font = `bold ${9 * window.devicePixelRatio}px var(--font-mono)`;
+                ctx.fillText(packetCount, bx, by);
+            }
+
+            // Node Label below
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = `${10 * window.devicePixelRatio}px var(--font-sans)`;
+            ctx.fillText(meta.label, nx, ny + radius + 14 * window.devicePixelRatio);
+        });
+
+        requestAnimationFrame(renderMeshCanvas);
+    }
+
+    // Refresh application state
+    async function refresh() {
+        try {
+            // Mesh state
+            const meshState = await fetch('/api/mesh/state').then(r => r.json());
+            currentDevices = meshState.devices;
+            document.getElementById('kpiCacheEntries').textContent = meshState.idempotencyCacheSize;
+
+            let totalPacketsInFlight = 0;
+            currentDevices.forEach(d => totalPacketsInFlight += d.packetCount);
+            document.getElementById('kpiPacketsInFlight').textContent = totalPacketsInFlight;
+
+            // Render Devices Micro Row
+            const row = document.getElementById('devicesRow');
+            row.innerHTML = currentDevices.map(d => `
+                <div class="device-pill-card ${d.hasInternet ? 'bridge' : ''}">
+                    <div class="device-card-header">
+                        <span>${d.deviceId}</span>
+                        <span class="device-packets-badge ${d.packetCount > 0 ? 'has-packets' : ''}">
+                            ${d.packetCount} pkt
+                        </span>
+                    </div>
+                    <div style="font-size:11px; color: ${d.hasInternet ? 'var(--accent-emerald)' : 'var(--text-muted)'}; display:flex; align-items:center; gap:4px;">
+                        <span>${d.hasInternet ? '🌐 4G Uplink Active' : '🚫 Offline BLE Mesh'}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            // Accounts
+            const accounts = await fetch('/api/accounts').then(r => r.json());
+            currentAccounts = accounts;
+            updateSenderBalancePreview();
+
+            // Render Accounts Grid
+            const accGrid = document.getElementById('accountsGrid');
+            accGrid.innerHTML = accounts.map(a => `
+                <div class="account-card">
+                    <div class="account-card-top">
+                        <div class="account-avatar">${a.holderName.charAt(0)}</div>
+                        <span class="pill-badge active" style="font-size:10px;">KYC VERIFIED</span>
+                    </div>
+                    <div class="account-details">
+                        <h4>${a.holderName}</h4>
+                        <p>${a.vpa}</p>
+                    </div>
+                    <div class="account-balance-box">
+                        <span>Available Reserve</span>
+                        <span class="balance-val">₹${parseFloat(a.balance).toFixed(2)}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            // Transactions
+            const txs = await fetch('/api/transactions').then(r => r.json());
+            currentTransactions = txs;
+            document.getElementById('kpiSettledCount').textContent = `${txs.length} transactions recorded`;
+
+            let settledVol = 0;
+            txs.forEach(t => {
+                if (t.status === 'SETTLED') settledVol += parseFloat(t.amount);
+            });
+            document.getElementById('kpiSettledVolume').textContent = `₹${settledVol.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+
+            // Render Ledger Table
+            const tbody = document.querySelector('#txTable tbody');
+            if (txs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:32px; color:var(--text-muted)">No transactions settled yet. Send a payment above to test the offline mesh!</td></tr>`;
+            } else {
+                tbody.innerHTML = txs.map(t => `
+                    <tr>
+                        <td style="font-family:var(--font-mono); font-weight:700; color:var(--text-primary);">#${t.id}</td>
+                        <td><strong>${t.senderVpa}</strong></td>
+                        <td><strong>${t.receiverVpa}</strong></td>
+                        <td style="font-family:var(--font-mono); font-weight:800; color:var(--accent-emerald);">₹${parseFloat(t.amount).toFixed(2)}</td>
+                        <td>
+                            <span class="badge-status ${t.status}">${t.status}</span>
+                        </td>
+                        <td><span class="hash-code">${t.bridgeNodeId}</span></td>
+                        <td><span style="font-weight:700;">${t.hopCount}</span> hop(s)</td>
+                        <td style="font-size:12px; color:var(--text-muted);">${new Date(t.settledAt).toLocaleTimeString()}</td>
+                        <td>
+                            <button class="btn btn-secondary" style="padding:4px 10px; font-size:11px;" onclick="openReceiptModal(${t.id})">
+                                <span>Verify Proof</span>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+        } catch (err) {
+            console.error('Refresh polling error:', err);
+        }
+    }
+
+    function updateSenderBalancePreview() {
+        const sender = document.getElementById('senderVpa').value;
+        const acc = currentAccounts.find(a => a.vpa === sender);
+        if (acc) {
+            document.getElementById('senderBalancePreview').textContent = `₹${parseFloat(acc.balance).toFixed(2)}`;
+        }
+    }
+
+    // API Actions
+    async function sendPacket() {
+        playTone(400, 'sine', 0.1);
+        const senderVpa = document.getElementById('senderVpa').value;
+        const receiverVpa = document.getElementById('receiverVpa').value;
+        const amount = parseFloat(document.getElementById('amount').value);
+        const pin = document.getElementById('pin').value;
+
+        if (senderVpa === receiverVpa) {
+            showToast('Sender and Recipient VPAs must be different', 'warning');
+            return;
+        }
+
+        if (!amount || amount <= 0) {
+            showToast('Please enter a valid payment amount', 'warning');
+            return;
+        }
+
+        const body = {
+            senderVpa,
+            receiverVpa,
+            amount,
+            pin,
+            ttl: 5,
+            startDevice: 'phone-alice'
+        };
+
+        try {
+            const r = await fetch('/api/demo/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            }).then(res => res.json());
+
+            logTerminal('INJECT', `Packet ${r.packetId.substring(0, 8)} signed & injected at ${r.injectedAt} (TTL=${r.ttl})`);
+            logTerminal('INJECT', `Ciphertext preview: ${r.ciphertextPreview}`);
+            showToast(`Offline payment ₹${amount} encrypted and held by Alice's phone!`, 'success');
+            playTone(620, 'triangle', 0.12);
+            refresh();
+        } catch (e) {
+            showToast('Injection failed: ' + e.message, 'warning');
+        }
+    }
+
+    async function gossip() {
+        playTone(500, 'triangle', 0.1);
+        try {
+            // Trigger animation between nodes
+            spawnPacketAnimation('phone-alice', 'phone-stranger1');
+            spawnPacketAnimation('phone-alice', 'phone-stranger2');
+            spawnPacketAnimation('phone-stranger1', 'phone-stranger3');
+            spawnPacketAnimation('phone-stranger2', 'phone-bridge');
+
+            const r = await fetch('/api/mesh/gossip', { method: 'POST' }).then(res => res.json());
+            logTerminal('GOSSIP', `Mesh Gossip completed: ${r.transfers} hop transfer(s) across network`);
+            showToast(`Gossip Hop: ${r.transfers} packet transfer(s) executed`, 'info');
+            refresh();
+        } catch (e) {
+            showToast('Gossip failed: ' + e.message, 'warning');
+        }
+    }
+
+    async function flushBridges() {
+        playTone(520, 'sine', 0.1);
+        try {
+            const r = await fetch('/api/mesh/flush', { method: 'POST' }).then(res => res.json());
+            logTerminal('UPLOAD', `4G Gateway flushed ${r.uploadsAttempted} packet upload(s) to Bank Settlement Gateway:`);
+            let settledAny = false;
+
+            r.results.forEach(res => {
+                if (res.outcome === 'SETTLED') {
+                    settledAny = true;
+                    logTerminal('SETTLED', `✔ SETTLED: Tx #${res.transactionId} settled from packet ${res.packetId} via ${res.bridgeNode}`);
+                    showToast(`Payment successfully settled on Bank Ledger!`, 'success');
+                } else if (res.outcome === 'DUPLICATE_DROPPED') {
+                    duplicateDropsCount++;
+                    document.getElementById('kpiDupDrops').textContent = duplicateDropsCount;
+                    logTerminal('DUP', `🛡 DUPLICATE DROPPED: Packet ${res.packetId} already settled. Idempotency claim prevented double-spend.`);
+                    showToast(`Duplicate packet dropped harmlessly by idempotency cache!`, 'warning');
+                } else {
+                    logTerminal('UPLOAD', `Outcome: ${res.outcome} (${res.reason})`);
+                }
+            });
+
+            if (settledAny) {
+                playSuccessSound();
+                fireConfetti();
+            }
+
+            refresh();
+        } catch (e) {
+            showToast('Bridge flush failed: ' + e.message, 'warning');
+        }
+    }
+
+    async function testIdempotencyStorm() {
+        showToast('Simulating concurrent upload storm...', 'info');
+        playTone(380, 'sawtooth', 0.15);
+        await flushBridges();
+    }
+
+    async function resetMesh() {
+        playTone(300, 'sine', 0.15);
+        try {
+            await fetch('/api/mesh/reset', { method: 'POST' });
+            logTerminal('INJECT', 'Mesh state & idempotency cache cleared.');
+            showToast('Mesh memory and idempotency cache cleared', 'info');
+            refresh();
+        } catch (e) {
+            showToast('Reset failed', 'warning');
+        }
+    }
+
+    // Interactive Automated Demo Tour
+    async function runAutomatedTour() {
+        const btn = document.getElementById('btnAutoTour');
+        btn.disabled = true;
+        btn.innerHTML = '<span>Running Tour...</span>';
+        showToast('Starting end-to-end Offline UPI Walkthrough!', 'info');
+
+        try {
+            // Step 1: Inject
+            logTerminal('INJECT', '--- 🎬 STARTING AUTOMATED TOUR ---');
+            await sendPacket();
+            await new Promise(r => setTimeout(r, 1600));
+
+            // Step 2: Gossip Round 1
+            showToast('Step 2: Simulating BLE gossip hop 1...', 'info');
+            await gossip();
+            await new Promise(r => setTimeout(r, 1600));
+
+            // Step 3: Gossip Round 2 (reaches Bridge)
+            showToast('Step 3: Simulating BLE gossip hop 2 (reaching Bridge)...', 'info');
+            await gossip();
+            await new Promise(r => setTimeout(r, 1600));
+
+            // Step 4: Bridge walks outside to 4G
+            showToast('Step 4: Bridge node walks outside into 4G range!', 'info');
+            await flushBridges();
+            await new Promise(r => setTimeout(r, 1200));
+
+            // Step 5: Duplicate Storm Verification
+            showToast('Step 5: Testing duplicate storm idempotency defense...', 'info');
+            await flushBridges();
+
+            showToast('✨ Automated Tour Finished! Review the Ledger below.', 'success');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <span>Interactive Auto-Tour</span>
+            `;
+        }
+    }
+
+    // Startup Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+        initTopologyCanvas();
+        renderMeshCanvas();
+        refresh();
+        setInterval(refresh, 3000);
+        logTerminal('INJECT', 'BharatMesh Pay Engine v1.4 started.');
+        logTerminal('INJECT', 'Air-gapped mesh simulator initialized with 4 offline nodes & 1 4G gateway.');
+    });
+</script>
+</body>
+</html>
